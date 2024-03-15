@@ -1,12 +1,17 @@
 import tkinter as tk
 from tkinter import filedialog
 from tkinter import messagebox
+import os
 window = tk.Tk()
+window.geometry("800x500")
 global c
 c = tk.Canvas(window, height=500, width=800, bg='cyan')
 global itext
 itext = "Nothing Selected"
 color = "cyan"
+compilecontents = "import tkinter as tk\nwindow = tk.Tk()\nwindow.title('Untitled')\nc = tk.Canvas(window, height=500, width=800, bg='" + color + "')\nc.pack()"
+global buttontext
+buttontext = "Button"
 
 digits = 123456789
 
@@ -18,9 +23,9 @@ def CloseApp():
 
 def Compile():
   global compilecontents
-  compilecontents = "import tkinter as tk\nwindow = tk.Tk()\nwindow.title('Untitled')\nc = tk.Canvas(window, height=500, width=800, bg='" + textbar.get() + "')\nc.pack()"
-  if filecontents == "element=1\n":
-    compilecontents = compilecontents + "\nelement = tk.Button(window, text='Button', font=('arial'))\nelement.place(x=90, y=90)\nwindow.mainloop()"
+  compilecontents = "import tkinter as tk\nwindow = tk.Tk()\nwindow.title('Untitled')\nc = tk.Canvas(window, height=500, width=800, bg='" + color + "')\nc.pack()"
+  if filecontents == "element=1":
+    compilecontents = compilecontents + "\nelement = tk.Button(window, text='" + buttontext +"', font=('arial'))\nelement.place(x=90, y=90)\nwindow.mainloop()"
   else:
     compilecontents = compilecontents + "\nwindow.mainloop()"
   print()
@@ -116,16 +121,25 @@ def printfc():
   print(filecontents)
 
 def showinspector():
+  global inspector
   inspector = tk.Tk()
   inspector.title("Inspector")
-  inspectorc = tk.Canvas(inspector, height=500, width=200, bg="gray")
+  inspectorc = tk.Canvas(inspector, height=600, width=300, bg="gray")
   inspectorc.pack()
   ilabel = tk.Label(inspector, text=itext, font=('Arial', 16))
   ilabel.place(x=20, y=0)
+  if itext == "Button":
+    global name
+    name = tk.Entry(inspector, font=('Arial', 16))
+    name.place(x=20, y=40)
+    namebtn = tk.Button(inspector, text="Set", command=SetButtonName) 
+    namebtn.place(x=20, y=80) 
 
 def CreateButton():
     global element
-    element = tk.Button(window, text="Button", font=('arial'), command=showinspector)
+    global itext
+    itext = "Button"
+    element = tk.Button(window, text=buttontext, font=('arial'), command=showinspector)
     element.place(x=90, y=90)
     global x
     global y
@@ -134,8 +148,19 @@ def CreateButton():
     showinspector()
     global filecontents
     filecontents = "element=1"
+
+def CreateButtonNoInspector():
+    global element
     global itext
-    itext = "Button"   
+    itext = "Button"
+    element = tk.Button(window, text=buttontext, font=('arial'), command=showinspector)
+    element.place(x=90, y=90)
+    global x
+    global y
+    x = 90
+    y = 90
+
+
 
 def DeleteButton():
   element.place_forget()
@@ -187,5 +212,17 @@ def SetColor():
   c = tk.Canvas(window, height=500, width=800, bg=textbar.get())
   main()
 
+def SetButtonName():
+  global buttontext
+  buttontext = name.get()
+  global compilecontents
+  global element
+  element.place_forget()
+  CreateButtonNoInspector()
+
 main()
+userpath = os.path.dirname(__file__)
+iconpath = userpath + '\\Icon.ico'
+print(iconpath)
+window.iconbitmap(default=iconpath)
 window.mainloop()
