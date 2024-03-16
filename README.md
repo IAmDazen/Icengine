@@ -8,4 +8,4 @@ The Discord Server Is [Here!](https://discord.com/invite/MYpWwDQrXR)
 - 1: 
 Run `Install.bat` Before `Install.py`, Then Restart To Commit Changes
 - 2: 
-Go To The Wikipage On Errorcodes [Here](https://github.com/IAmDazen/Icengine/wiki/Error-Codes) For Help With Crashes
+Go To The Wikipage On Error Codes [Here](https://github.com/IAmDazen/Icengine/wiki/Error-Codes) For Help With Crashes
