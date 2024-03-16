@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import filedialog
 from tkinter import messagebox
+from tkinter import simpledialog
 from tkinter import colorchooser
 import os
 window = tk.Tk()
@@ -16,9 +17,11 @@ buttontext = "Text"
 global projectname
 projectname = 'Untitled'
 buttoncolor = [
-  "white",
+  "None",
   'white'
 ]
+global crashhandler
+crashhandler = True
 
 digits = 123456789
 
@@ -157,10 +160,10 @@ def showinspector():
     name = tk.Entry(inspector, font=('Arial', 16))
     name.place(x=20, y=40)
     name.insert(0, "Text")
+    namebtn = tk.Button(inspector, text="Set Name", command=SetButtonName)
     btncolor = tk.Button(inspector, text="Set Color", command=SetButtonColor)
-    btncolor.place(x=20, y=80)
-    namebtn = tk.Button(inspector, text="Set", command=SetButtonName) 
-    namebtn.place(x=20, y=120)
+    btncolor.place(x=20, y=120) 
+    namebtn.place(x=20, y=80)
     delbtn = tk.Button(inspector, text="Delete", bg="red", command=DeleteButton) 
     delbtn.place(x=20, y=380)
 def CreateButton():
@@ -190,6 +193,7 @@ def CreateButtonNoInspector():
 
 def showplayersettings():
   global projectnamebox
+  global playersettings
   playersettings = tk.Tk()
   playersettings.title("Player Settings")
   playersettings.geometry("800x500")
@@ -203,6 +207,7 @@ def showplayersettings():
   projectnamebtn.place(x=20, y=60)
 
 def DeleteButton():
+  global playersettings
   element.place_forget()
   global itext
   itext = "Nothing Selected"
@@ -213,10 +218,16 @@ def DeleteButton():
   filecontents = "element=0"
   if element.winfo_exists() == 1:
     if filecontents == "element=0":
-      window.destroy()
-      messagebox.showerror(title="Icengine Crash Handler", message="Icengine Ran Into An Error And Crashed\nError Code: 001x0001")
+      if crashhandler == True:
+        messagebox.showerror(title="Icengine Crash Handler", message="Icengine Ran Into An Error And Crashed\nError Code: 001x0001")
+        window.destroy()
+        playersettings.destroy()
+      elif crashhandler == False:
+        messagebox.showwarning(title="Crash Handler Failure", message="Icengine Ran Into A Fatal Error But Could Not Crash Due To Disabled Crash Handler, Icengine May No Longer Work\nFailed Error Code: 001x0001")
 
 def main():
+  global menubar
+  global devmenu
   global element
   window.title("Icengine Beta 2024.0.0f1 - " + projectname)
   print("Window Opened!")
@@ -242,7 +253,8 @@ def main():
   objmenu.add_command(label="Create Button Element", command=CreateButton)
   objmenu.add_command(label="Show Inspector", command=showinspector)
   devmenu = tk.Menu(menubar, tearoff=0)
-  devmenu.add_command(label="Print Color", command=PrintColor)
+  devmenu.add_command(label="Print Log Data", command=PrintColor)
+  devmenu.add_command(label="Disable Crash Handler", command=DisableCrash)
   editmenu = tk.Menu(menubar, tearoff=0)
   editmenu.add_command(label="Project Settings", command=showplayersettings)
   menubar.add_cascade(menu=filemenu, label="File")
@@ -289,6 +301,43 @@ def SetProjectName():
   global projectname
   projectname = projectnamebox.get()
   window.title("Icengine Beta 2024.0.0f1 - " + projectname)
+
+def DisableCrash():
+  answer = messagebox.askyesno(title="Confirm", message="Are You Sure You Want To Disable Crash Handler (UNSTABLE)")
+  if answer == True:
+    print("Disabled Crash Handler")
+    global crashhandler
+    crashhandler = False
+
+def EnterCode():
+  codeanswer = simpledialog.askstring("Enter Code", "Enter Code")
+  print(codeanswer)
+  if codeanswer == "1984":
+    menubar.add_cascade(menu=devmenu, label="Debug")
+    menubar.delete("Enter Debug Code")
+    return
+  if codeanswer == None:
+    return
+
+  try:
+    int(codeanswer)
+  except:
+    messagebox.showerror(title="Syntax Error", message="Requires Numbers")
+    EnterCode()
+
+  if len(codeanswer) < 4:
+    messagebox.showerror(title="Syntax Error", message="Not Enough Characters")
+    EnterCode()
+  
+  if len(codeanswer) > 4:
+    messagebox.showerror(title="Syntax Error", message="Too Many Characters")
+    EnterCode()
+
+  if not codeanswer == "1984":
+    if not codeanswer == None:
+      if not codeanswer == "1984":
+        messagebox.showerror(title="Syntax Error", message="Wrong Code")
+        EnterCode()
 
 main()
 userpath = os.path.dirname(__file__)
