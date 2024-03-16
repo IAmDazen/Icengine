@@ -4,6 +4,8 @@ Icengine Or I.C.E Which Stands For Interface Created Engine, Is A Python Built G
 Icengine Isn't Even In Beta!, Icengine Is Currently In **BETA** Stages
 # Join The Community!
 The Discord Server Is [Here!](https://discord.com/invite/MYpWwDQrXR)
+# PLEASE
+Run `Install.bat` Before `Install.py`, Then Restart To Commit Changes
 
 
 # Error Codes:
