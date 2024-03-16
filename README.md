@@ -7,6 +7,6 @@ The Discord Server Is [Here!](https://discord.com/invite/MYpWwDQrXR)
 
 
 # Error Codes:
-**001x0001**
+**001x0001:**
 Error Code `001x0001` Means That Icengine Had A Variable Error,
 Most Likley An Element Variable Said An Existing Element Didn't
