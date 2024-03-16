@@ -20,6 +20,32 @@ buttoncolor = [
   "None",
   'white'
 ]
+filelist = [
+  "element=0\n",
+  "white"
+]
+
+def showinspector():
+  global inspector
+  inspector = tk.Tk()
+  inspector.title("Inspector")
+  inspectorc = tk.Canvas(inspector, height=600, width=300, bg="gray")
+  inspectorc.pack()
+  ilabel = tk.Label(inspector, text=itext, font=('Arial', 16))
+  ilabel.place(x=20, y=0)
+  if itext == "Button":
+    global name
+    global btncolor
+    name = tk.Entry(inspector, font=('Arial', 16))
+    name.place(x=20, y=40)
+    name.insert(0, "Text")
+    namebtn = tk.Button(inspector, text="Set Name", command=SetButtonName)
+    btncolor = tk.Button(inspector, text="Set Color", command=SetButtonColor)
+    btncolor.place(x=20, y=120) 
+    namebtn.place(x=20, y=80)
+    delbtn = tk.Button(inspector, text="Delete", bg="red", command=DeleteButton) 
+    delbtn.place(x=20, y=380)
+
 global crashhandler
 crashhandler = True
 
@@ -27,6 +53,9 @@ digits = 123456789
 
 global filecontents
 filecontents = "element=0"
+
+global element
+element = None
 
 def CloseApp():
   exit()
@@ -54,6 +83,9 @@ def Open():
   global c
   global element
   global projectname
+  global filelist
+  global buttoncolor
+  global itext
   tf = filedialog.askopenfilename(
         initialdir="Desktop", 
         title="Open Color Metadata", 
@@ -62,8 +94,6 @@ def Open():
   tf = open(tf, "r")
   global data
   data = tf.read()
-  global filedata
-  filedata = tf.readline()
   if not data == "":
     c.pack_forget()
     c = tk.Canvas(window, height=500, width=800, bg=data)
@@ -75,13 +105,27 @@ def Open():
         filetypes=(("Icengine Project Metadata", "*.ice"),("All Files", "*.*"))
         )
   tf = open(tf, "r")
+  filelist = list(tf.readlines())
+  print(filelist[0])
   data = tf.read()
-  filedata = tf.readline()
-  if data == "element=1":
-    element = tk.Button(window, text="Button", font=('arial'), command=showinspector)
-  elif data == "No Metadata":
+  buttoncolor = filelist[1]
+  print(buttoncolor[1])
+  print(data)
+  try:
+    if filelist[0] == 'element=1\n':
+      if not element == None:
+        element.place_forget()
+      element = tk.Button(window, text=buttontext, font=('arial'), bg=buttoncolor[1], command=showinspector)
+  except:
+    if crashhandler == True:
+      messagebox.showerror(title="Icengine Crash Handler", message="Icengine Ran Into An Error And Crashed\nError Code: 001x0002")
+      window.destroy()
+      playersettings.destroy()
+    elif crashhandler == False:
+      messagebox.showwarning(title="Crash Handler Failure", message="Icengine Ran Into A Fatal Error But Could Not Crash Due To Disabled Crash Handler, Icengine May No Longer Work\nFailed Error Code: 001x0002")
+
+  else:
     DeleteButton()
-  
   tf = filedialog.askopenfilename(
         initialdir="Desktop", 
         title="Open XPOS Metadata", 
@@ -90,7 +134,6 @@ def Open():
   global xpos
   tf = open(tf, "r")
   data = tf.read()
-  filedata = tf.readline()
   xpos = int(data)
 
   tf = filedialog.askopenfilename(
@@ -100,8 +143,8 @@ def Open():
         )
   tf = open(tf, "r")
   data = tf.read()
-  filedata = tf.readline()
   element.place(x=xpos, y=int(data))
+  itext = "Button"
 
   tf = filedialog.askopenfilename(
         initialdir="Desktop", 
@@ -110,7 +153,6 @@ def Open():
         )
   tf = open(tf, "r")
   data = tf.read()
-  filedata = tf.readline()
   projectname = data
   window.title("Icengine Beta 2024.0.0f1 - " + projectname)
   
@@ -146,26 +188,6 @@ def Save():
 def printfc():
   print(filecontents)
 
-def showinspector():
-  global inspector
-  inspector = tk.Tk()
-  inspector.title("Inspector")
-  inspectorc = tk.Canvas(inspector, height=600, width=300, bg="gray")
-  inspectorc.pack()
-  ilabel = tk.Label(inspector, text=itext, font=('Arial', 16))
-  ilabel.place(x=20, y=0)
-  if itext == "Button":
-    global name
-    global btncolor
-    name = tk.Entry(inspector, font=('Arial', 16))
-    name.place(x=20, y=40)
-    name.insert(0, "Text")
-    namebtn = tk.Button(inspector, text="Set Name", command=SetButtonName)
-    btncolor = tk.Button(inspector, text="Set Color", command=SetButtonColor)
-    btncolor.place(x=20, y=120) 
-    namebtn.place(x=20, y=80)
-    delbtn = tk.Button(inspector, text="Delete", bg="red", command=DeleteButton) 
-    delbtn.place(x=20, y=380)
 def CreateButton():
     global element
     global itext
@@ -178,13 +200,13 @@ def CreateButton():
     y = 90
     showinspector()
     global filecontents
-    filecontents = "element=1"
+    filecontents = "element=1\ncolor='" + str(buttoncolor) + "'\n"
 
 def CreateButtonNoInspector():
     global element
     global itext
     itext = "Button"
-    element = tk.Button(window, text=buttontext, font=('arial'), bg=buttoncolor[1], command=showinspector)
+    element = tk.Button(window, text=buttontext[1], font=('arial'), bg=buttoncolor, command=showinspector)
     element.place(x=90, y=90)
     global x
     global y
@@ -229,6 +251,7 @@ def main():
   global menubar
   global devmenu
   global element
+  global filelist
   window.title("Icengine Beta 2024.0.0f1 - " + projectname)
   print("Window Opened!")
   window.update()
@@ -241,7 +264,7 @@ def main():
   textbarlabel.place(x=40, y=380)
   textbar.place(x=40, y=420)
   textbarbtn.place(x=310, y=420)
-  if filecontents == "element=1":
+  if filelist[1] == "element=1\n":
     CreateButtonNoInspector()
   menubar = tk.Menu(window)
   filemenu = tk.Menu(menubar, tearoff=0)
@@ -292,8 +315,11 @@ def SetButtonName():
 def SetButtonColor():
   global element
   global buttoncolor
+  global filecontents
   buttoncolor = colorchooser.askcolor()
   element.place_forget()
+  filecontents = "element=1\n" + str(buttoncolor)
+  print(buttoncolor)
   CreateButtonNoInspector()
 
 def SetProjectName():
