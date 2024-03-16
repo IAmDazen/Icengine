@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import filedialog
 from tkinter import messagebox
+from tkinter import colorchooser
 import os
 window = tk.Tk()
 window.geometry("800x500")
@@ -11,21 +12,27 @@ itext = "Nothing Selected"
 color = "cyan"
 compilecontents = "import tkinter as tk\nwindow = tk.Tk()\nwindow.title('Untitled')\nc = tk.Canvas(window, height=500, width=800, bg='" + color + "')\nc.pack()"
 global buttontext
-buttontext = "Button"
+buttontext = "Text"
+global projectname
+projectname = 'Untitled'
+buttoncolor = [
+  "white",
+  'white'
+]
 
 digits = 123456789
 
 global filecontents
-filecontents = "No Metadata"
+filecontents = "element=0"
 
 def CloseApp():
   exit()
 
 def Compile():
   global compilecontents
-  compilecontents = "import tkinter as tk\nwindow = tk.Tk()\nwindow.title('Untitled')\nc = tk.Canvas(window, height=500, width=800, bg='" + color + "')\nc.pack()"
+  compilecontents = "import tkinter as tk\nwindow = tk.Tk()\nwindow.title('" + projectname + " - Made In Icengine" + "')\nc = tk.Canvas(window, height=500, width=800, bg='" + color + "')\nc.pack()"
   if filecontents == "element=1":
-    compilecontents = compilecontents + "\nelement = tk.Button(window, text='" + buttontext +"', font=('arial'))\nelement.place(x=90, y=90)\nwindow.mainloop()"
+    compilecontents = compilecontents + "\nelement = tk.Button(window, text='" + buttontext +"', bg=('" + buttoncolor + "'), font=('arial'))\nelement.place(x=90, y=90)\nwindow.mainloop()"
   else:
     compilecontents = compilecontents + "\nwindow.mainloop()"
   print()
@@ -43,6 +50,7 @@ def Open():
   global tf
   global c
   global element
+  global projectname
   tf = filedialog.askopenfilename(
         initialdir="Desktop", 
         title="Open Color Metadata", 
@@ -91,6 +99,17 @@ def Open():
   data = tf.read()
   filedata = tf.readline()
   element.place(x=xpos, y=int(data))
+
+  tf = filedialog.askopenfilename(
+        initialdir="Desktop", 
+        title="Open Project Settings Metadata", 
+        filetypes=(("Icengine Project Settings Metadata", "*.icem"),("All Files", "*.*"))
+        )
+  tf = open(tf, "r")
+  data = tf.read()
+  filedata = tf.readline()
+  projectname = data
+  window.title("Icengine Beta 2024.0.0f1 - " + projectname)
   
   
 
@@ -116,6 +135,10 @@ def Save():
   if file:
     file.write(str(y))
     file.close()
+  file = filedialog.asksaveasfile(title = "Save Project Metadata", defaultextension=".icem", filetypes=[("Icengine Project Settings Metadata", "*.icem")])
+  if file:
+    file.write(projectname)
+    file.close
 
 def printfc():
   print(filecontents)
@@ -130,11 +153,16 @@ def showinspector():
   ilabel.place(x=20, y=0)
   if itext == "Button":
     global name
+    global btncolor
     name = tk.Entry(inspector, font=('Arial', 16))
     name.place(x=20, y=40)
+    name.insert(0, "Text")
+    btncolor = tk.Button(inspector, text="Set Color", command=SetButtonColor)
+    btncolor.place(x=20, y=80)
     namebtn = tk.Button(inspector, text="Set", command=SetButtonName) 
-    namebtn.place(x=20, y=80) 
-
+    namebtn.place(x=20, y=120)
+    delbtn = tk.Button(inspector, text="Delete", bg="red", command=DeleteButton) 
+    delbtn.place(x=20, y=380)
 def CreateButton():
     global element
     global itext
@@ -153,20 +181,44 @@ def CreateButtonNoInspector():
     global element
     global itext
     itext = "Button"
-    element = tk.Button(window, text=buttontext, font=('arial'), command=showinspector)
+    element = tk.Button(window, text=buttontext, font=('arial'), bg=buttoncolor[1], command=showinspector)
     element.place(x=90, y=90)
     global x
     global y
     x = 90
     y = 90
 
-
+def showplayersettings():
+  global projectnamebox
+  playersettings = tk.Tk()
+  playersettings.title("Player Settings")
+  playersettings.geometry("800x500")
+  c = tk.Canvas(playersettings, height=500, width=800, bg='grey')
+  c.pack()
+  projectnameboxlabel = tk.Label(playersettings, text="Project Name", font=("Arial", 8))
+  projectnameboxlabel.place(x=20, y=20)
+  projectnamebox = tk.Entry(playersettings)
+  projectnamebox.place(x=20, y=40)
+  projectnamebtn = tk.Button(playersettings, text="Set", font=("Arial", 8), command=SetProjectName)
+  projectnamebtn.place(x=20, y=60)
 
 def DeleteButton():
   element.place_forget()
+  global itext
+  itext = "Nothing Selected"
+  inspector.destroy()
+  global buttontext
+  buttontext = "Button"
+  global filecontents
+  filecontents = "element=0"
+  if element.winfo_exists() == 1:
+    if filecontents == "element=0":
+      window.destroy()
+      messagebox.showerror(title="Icengine Crash Handler", message="Icengine Ran Into An Error And Crashed\nError Code: 001x0001")
 
 def main():
-  window.title("Icengine Beta 2024.0.0f1")
+  global element
+  window.title("Icengine Beta 2024.0.0f1 - " + projectname)
   print("Window Opened!")
   window.update()
   global textbar
@@ -178,6 +230,8 @@ def main():
   textbarlabel.place(x=40, y=380)
   textbar.place(x=40, y=420)
   textbarbtn.place(x=310, y=420)
+  if filecontents == "element=1":
+    CreateButtonNoInspector()
   menubar = tk.Menu(window)
   filemenu = tk.Menu(menubar, tearoff=0)
   filemenu.add_command(label="Save As", command=Save)
@@ -189,7 +243,10 @@ def main():
   objmenu.add_command(label="Show Inspector", command=showinspector)
   devmenu = tk.Menu(menubar, tearoff=0)
   devmenu.add_command(label="Print Color", command=PrintColor)
+  editmenu = tk.Menu(menubar, tearoff=0)
+  editmenu.add_command(label="Project Settings", command=showplayersettings)
   menubar.add_cascade(menu=filemenu, label="File")
+  menubar.add_cascade(menu=editmenu, label="Edit")
   menubar.add_cascade(menu=objmenu, label="GameObject")
   window.config(menu=menubar)
 
@@ -218,6 +275,19 @@ def SetButtonName():
   global element
   element.place_forget()
   CreateButtonNoInspector()
+
+def SetButtonColor():
+  global element
+  global buttoncolor
+  buttoncolor = colorchooser.askcolor()
+  element.place_forget()
+  CreateButtonNoInspector()
+
+def SetProjectName():
+  global window
+  global projectname
+  projectname = projectnamebox.get()
+  window.title("Icengine Beta 2024.0.0f1 - " + projectname)
 
 main()
 userpath = os.path.dirname(__file__)
